@@ -25,12 +25,12 @@ class Capsule {
     }
     setTopBarInHtml() {
         this.options = this.selectorsOpE.reduce((acc, cur) => acc + `<option value="${cur.toLowerCase().split(' ').join('')}">${cur}</option>`, '');
-        this.options += `<option value="everything">Everything</option>`;
+        this.options = `<option value="everything">Everything</option>` + this.options;
         this.selectOpE.innerHTML = this.options;
         this.selectorsOpE.unshift('Id');
     }
     setSortListInHtml() {
-        this.topSortList = document.createElement('li');
+        this.topSortList = document.createElement('div');
         this.topSortList.classList.add('topList');
         this.topSortList.innerHTML = this.selectorsOpE.reduce((acc, cur) => {
             return acc + `
@@ -48,18 +48,9 @@ class Capsule {
             let temp = new Person(data[i].id, data[i].firstName, data[i].lastName, data[i].capsule, data2.age, data2.city, data2.gender, data2.hobby);
             this.list.push(temp);
         }));
-        console.log('vrr')
         loader.style.visibility = 'hidden';
     }
-    async fatchWether() {
-        // let response3 = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${data2.city}&appid=859adcc48d4c7905b04ecd5730f626be`);
-        // let data3 = await response3.json();
 
-        // } catch(err) {
-        //     console.log(data3);
-        //     return console.log(err)
-        // }
-    }
     setAllPersonsInHtml(arr) {
         arr.forEach(e => {
             this.personList = document.createElement('li');
@@ -89,7 +80,6 @@ class Capsule {
         const deleteLi = document.querySelectorAll('.delete');
         deleteLi.forEach(e => {
             e.addEventListener('click', (e) => {
-                // console.log(e.target.parentElement.parentElement.classList[0])
                 this.deletePersonFromList(e.target.parentElement.parentElement.classList[0]);
                 this.resetPage();
             })
@@ -113,13 +103,6 @@ class Capsule {
                             const elementInTempList = this.tempList[this.getInedxInTempListById(thePersonId)];
                             elementInTempList[ele.target.dataset.input] = ele.target.value;
                         })
-                        // el.firstChild.addEventListener('keyup', (e) => {
-                        //     if (e.keyCode === 13) {
-                        //         this.editOpen = this.editOpen === true ? false : true;
-                        //         this.list = JSON.parse(JSON.stringify(this.tempList));
-                        //         this.resetPage(this.tempList);
-                        //     }
-                        // })
                     } else if (i < 9) {
                         el.innerHTML = '<button class="cansel">Cansel</button>';
                         el.firstChild.addEventListener('click', () => {
@@ -136,7 +119,6 @@ class Capsule {
                     }
                     el = el.nextElementSibling
                 }
-                console.log(this.editOpen)
                 if (this.editOpen) {
                     this.resetPage();
                 }
@@ -185,13 +167,22 @@ class Capsule {
     getList() {
         return this.list;
     }
+    restartPage() {
+        const restart = document.querySelector(".restartPage");
+        restart.addEventListener('click', () => {
+            this.list = JSON.parse(localStorage.getItem('myCapsule'));
+            this.resetPage();
+        })
+    }
 }
 async function starter() {
     let c1 = new Capsule()
     c1.setTopBarInHtml();
     c1.setSortListInHtml()
     await c1.fetchAllPersons();
+    localStorage.setItem('myCapsule', JSON.stringify(c1.list));
     c1.setAllPersonsInHtml(c1.list);
+    c1.restartPage();
     c1.deleteItemEvent();
     c1.sortEvent();
     c1.editEvent();
